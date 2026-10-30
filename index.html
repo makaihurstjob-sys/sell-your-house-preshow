@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Sell Your House | Screening Preshow</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#141110;color:#f2e2be;font:17px system-ui,sans-serif;padding:40px 20px}
+main{max-width:1100px;margin:auto}
+small{color:#f2bc42;letter-spacing:.14em}
+h1{font-size:clamp(28px,5vw,48px);margin:12px 0 8px}
+p{color:#c9bca3}
+a{color:#f2bc42}
+video{width:100%;max-height:75vh;background:#000;border-radius:12px;margin-top:20px}
+.versions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
+.versions button{font:inherit;font-size:15px;color:#f2e2be;background:#221c1a;border:1px solid #3d3330;border-radius:999px;padding:8px 16px;cursor:pointer}
+.versions button[aria-pressed="true"]{background:#f2bc42;color:#141110;border-color:#f2bc42}
+.tag{font-size:12px;letter-spacing:.08em;margin-left:6px;opacity:.75}
+.meta{margin-top:12px}
+.notes{margin:6px 0 0;padding-left:20px;color:#c9bca3}
+</style>
+</head>
+<body>
+<main>
+<small>BEYOND THE FRAME HUNTSVILLE &middot; SCREENING PRESHOW &middot; BY MAKAI HURST</small>
+<h1>Sell Your House</h1>
+<p>Arrival loop for the November 15 screening: silent motion graphics, then the captioned trailer at full volume, then back. It loops seamlessly.</p>
+<div class="versions" id="versions" role="group" aria-label="Audio versions"></div>
+<video id="player" controls playsinline preload="metadata" loop></video>
+<p class="meta" id="meta"></p>
+<ul class="notes" id="notes"></ul>
+</main>
+<script>
+// One entry per audio version. Add new edits at the top.
+const VERSIONS = [
+  {id: 'clean', label: 'Clean audio', file: 'preshow-clean.mp4', length: '4:28', date: 'Oct 30, 2026', tag: 'RECOMMENDED',
+   notes: ['Curse words in the trailer are bleeped; everything else matches the uncut version',
+           'About 2 minutes of silent graphics with the official logo, film strips and scrolling event info',
+           'Dissolves into the captioned trailer (captions mask swears), then back to the graphics']},
+  {id: 'uncut', label: 'Uncut audio', file: 'preshow-uncut.mp4', length: '4:28', date: 'Oct 30, 2026',
+   notes: ['Original trailer audio with no bleeps',
+           'Same graphics, captions and timing as the clean version']},
+];
+const player = document.getElementById('player'), bar = document.getElementById('versions'),
+      meta = document.getElementById('meta'), notes = document.getElementById('notes');
+function show(v) {
+  player.src = v.file;
+  meta.innerHTML = '';
+  meta.append(`${v.label} · ${v.length} · ${v.date} · `);
+  const dl = Object.assign(document.createElement('a'), {href: v.file, textContent: 'Download this version'});
+  dl.setAttribute('download', '');
+  meta.append(dl);
+  notes.replaceChildren(...v.notes.map(n => Object.assign(document.createElement('li'), {textContent: n})));
+  for (const b of bar.children) b.setAttribute('aria-pressed', String(b.dataset.id === v.id));
+  history.replaceState(null, '', '#' + v.id);
+}
+VERSIONS.forEach(v => {
+  const b = document.createElement('button');
+  b.dataset.id = v.id;
+  b.textContent = v.label;
+  if (v.tag) b.append(Object.assign(document.createElement('span'), {className: 'tag', textContent: v.tag}));
+  b.onclick = () => show(v);
+  bar.append(b);
+});
+show(VERSIONS.find(v => '#' + v.id === location.hash) || VERSIONS[0]);
+</script>
+</body>
+</html>
