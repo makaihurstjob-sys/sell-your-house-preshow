@@ -19,13 +19,8 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 .ctrls{position:absolute;right:8px;display:flex;gap:4px}
 .ctrls span{width:16px;height:14px;border:1px solid #7b7b7b;background:linear-gradient(#fff,#cfcfcf);font-size:9px;
   line-height:12px;text-align:center;color:#444}
-.menu{display:flex;gap:16px;padding:5px 12px;background:#ececec;border-bottom:1px solid #b5b5b5}
-.menu span::first-letter{text-decoration:underline}
-.chrome{margin:10px;border:1px solid #9c9c9c;border-radius:6px;background:repeating-linear-gradient(#e9e9e9 0 2px,#dedede 2px 4px);padding-top:10px}
-.tabs{display:flex;justify-content:center;gap:2px}
-.tabs b{padding:5px 18px;border:1px solid #9c9c9c;border-bottom:none;border-radius:6px 6px 0 0;background:linear-gradient(#fafafa,#d8d8d8);font-size:12px}
-.tabs b[aria-current]{background:#fff}
-.grid{background:#fff;border-top:1px solid #9c9c9c;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.chrome{margin:10px;border:1px solid #9c9c9c;border-radius:6px;overflow:hidden}
+.grid{background:#fff;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
 /* tiles */
 .tile{all:unset;cursor:pointer;display:block;background:linear-gradient(#fdfdfd,#ededed);border:1px solid #c4c4c4;border-radius:6px;
   padding:10px;box-shadow:0 1px 0 #fff inset,0 2px 4px rgba(0,0,0,.12);text-align:center;transition:transform .12s,box-shadow .12s}
@@ -35,8 +30,6 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 .tile strong{display:block;margin-top:8px;font-size:14px;color:#b02c26}
 .tile small{display:block;color:#666;font-size:12px;margin-top:2px}
 .tile .badge{display:inline-block;margin-top:5px;font-size:10px;letter-spacing:.08em;color:#fff;background:#b02c26;border-radius:8px;padding:1px 7px}
-.status{margin:0 10px 10px;padding:7px 10px;background:#eef3df;border:1px solid #a9b48d;border-radius:4px;font-size:12px;color:#3d4429;min-height:30px}
-.status a{color:#3d4429}
 /* player */
 .stage{position:fixed;inset:0;background:#000;display:none;z-index:10}
 .stage.on{display:block}
@@ -48,37 +41,33 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 <body>
 <div class="win" role="application" aria-label="Sell Your House preshow player">
   <div class="titlebar"><h1>Welcome to Sell Your House</h1><div class="ctrls" aria-hidden="true"><span>_</span><span>&#9633;</span><span>&times;</span></div></div>
-  <nav class="menu" aria-hidden="true"><span>File</span><span>Edit</span><span>Movie</span><span>View</span><span>Window</span><span>Help</span></nav>
-  <div class="chrome">
-    <div class="tabs" aria-hidden="true"><b aria-current="true">Preshow</b><b>Nov 15</b></div>
-    <div class="grid" id="grid"></div>
-  </div>
-  <p class="status" id="status">Beyond the Frame Huntsville &middot; Click a tile to play full screen. It loops until you exit.</p>
+  <div class="chrome"><div class="grid" id="grid"></div></div>
 </div>
-<div class="stage" id="stage"><video id="player" playsinline loop controls preload="none"></video><button class="close" id="close" type="button">Close &times;</button></div>
+<div class="stage" id="stage"><video id="player" playsinline controls preload="none"></video><button class="close" id="close" type="button">Close &times;</button></div>
 <script>
 // One tile per video. Add new edits here.
+// plays: how many times the 4:28 cycle runs (Infinity = until closed; 3 = the 13:23 version, then it stops).
 const VIDEOS = [
-  {id: 'clean', title: 'Preshow · Clean audio', note: '4:28 loop · curse words bleeped', file: 'preshow-clean.mp4', thumb: 'thumb-clean.jpg', badge: 'RECOMMENDED'},
-  {id: 'uncut', title: 'Preshow · Uncut audio', note: '4:28 loop · original trailer audio', file: 'preshow-uncut.mp4', thumb: 'thumb-uncut.jpg'},
+  {id: 'clean', title: 'Loop · Clean audio', note: 'Repeats until you close it · curse words bleeped', file: 'preshow-clean.mp4', thumb: 'thumb-clean.jpg', plays: Infinity, badge: 'RECOMMENDED'},
+  {id: 'clean-3x', title: '3× · Clean audio', note: '13:23, three cycles, then stops · bleeped', file: 'preshow-clean.mp4', thumb: 'thumb-clean.jpg', plays: 3},
+  {id: 'uncut', title: 'Loop · Uncut audio', note: 'Repeats until you close it · original audio', file: 'preshow-uncut.mp4', thumb: 'thumb-uncut.jpg', plays: Infinity},
+  {id: 'uncut-3x', title: '3× · Uncut audio', note: '13:23, three cycles, then stops · original audio', file: 'preshow-uncut.mp4', thumb: 'thumb-uncut.jpg', plays: 3},
 ];
 const grid = document.getElementById('grid'), stage = document.getElementById('stage'), player = document.getElementById('player'),
-      status = document.getElementById('status'), closeBtn = document.getElementById('close');
-const defaultStatus = status.innerHTML;
+      closeBtn = document.getElementById('close');
+let playsLeft = 0;
 
 function stop() {
   player.pause();
   stage.classList.remove('on');
-  status.innerHTML = defaultStatus;
   if (location.hash) history.replaceState(null, '', location.pathname);
 }
 function play(v) {
   player.src = v.file;
+  player.loop = v.plays === Infinity;  // seamless repeat for the endless loop
+  playsLeft = v.plays;
   stage.classList.add('on');
   history.replaceState(null, '', '#' + v.id);
-  const dl = Object.assign(document.createElement('a'), {href: v.file, textContent: 'Download'});
-  dl.setAttribute('download', '');
-  status.replaceChildren('Now playing: ' + v.title + ' · ', dl);
   player.play().catch(() => {});
   // Full screen must start inside the click. iPhone Safari only supports it on the video itself.
   if (stage.requestFullscreen) stage.requestFullscreen().catch(() => {});
@@ -98,6 +87,11 @@ for (const v of VIDEOS) {
 closeBtn.onclick = () => document.fullscreenElement ? document.exitFullscreen() : stop();
 document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement) stop(); });
 player.addEventListener('webkitendfullscreen', stop);
+player.addEventListener('ended', () => {
+  if (--playsLeft > 0) { player.currentTime = 0; player.play().catch(() => {}); return; }
+  if (document.fullscreenElement) document.exitFullscreen(); else if (player.webkitExitFullscreen) player.webkitExitFullscreen();
+  stop();
+});
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && stage.classList.contains('on') && !document.fullscreenElement) stop(); });
 </script>
 </body>
