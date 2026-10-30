@@ -16,9 +16,6 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 .titlebar{position:relative;height:30px;display:flex;align-items:center;justify-content:center;
   background:repeating-linear-gradient(#f4f4f4 0 1px,#d2d2d2 1px 3px);border-bottom:1px solid #8a8a8a}
 .titlebar h1{margin:0;padding:0 12px;font-size:14px;font-weight:600;background:#e6e6e6;letter-spacing:.02em}
-.ctrls{position:absolute;right:8px;display:flex;gap:4px}
-.ctrls span{width:16px;height:14px;border:1px solid #7b7b7b;background:linear-gradient(#fff,#cfcfcf);font-size:9px;
-  line-height:12px;text-align:center;color:#444}
 .chrome{margin:10px;border:1px solid #9c9c9c;border-radius:6px;overflow:hidden}
 .grid{background:#fff;padding:18px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
 /* tiles */
@@ -40,7 +37,7 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 </head>
 <body>
 <div class="win" role="application" aria-label="Sell Your House preshow player">
-  <div class="titlebar"><h1>Welcome to Sell Your House</h1><div class="ctrls" aria-hidden="true"><span>_</span><span>&#9633;</span><span>&times;</span></div></div>
+  <div class="titlebar"><h1>Welcome to Sell Your House</h1></div>
   <div class="chrome"><div class="grid" id="grid"></div></div>
 </div>
 <div class="stage" id="stage"><video id="player" playsinline controls preload="none"></video><button class="close" id="close" type="button">Close &times;</button></div>
