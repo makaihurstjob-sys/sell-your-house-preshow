@@ -43,12 +43,12 @@ body{margin:0;min-height:100vh;display:grid;place-items:center;padding:28px 14px
 <div class="stage" id="stage"><video id="player" playsinline controls preload="none"></video><button class="close" id="close" type="button">Close &times;</button></div>
 <script>
 // One tile per video. Add new edits here.
-// plays: how many times the 4:28 cycle runs (Infinity = until closed; 3 = the 13:23 version, then it stops).
+// plays: Infinity = repeat until closed; 1 = play the file once, then return to the window.
 const VIDEOS = [
   {id: 'clean', title: 'Loop · Clean audio', note: 'Repeats until you close it · curse words bleeped', file: 'preshow-clean.mp4', thumb: 'thumb-clean.jpg', plays: Infinity, badge: 'RECOMMENDED'},
-  {id: 'clean-3x', title: '3× · Clean audio', note: '13:23, three cycles, then stops · bleeped', file: 'preshow-clean.mp4', thumb: 'thumb-clean.jpg', plays: 3},
+  {id: 'clean-3x', title: '3× · Clean audio', note: '13:23, three cycles, then stops · bleeped', file: 'preshow-3x-clean.mp4', thumb: 'thumb-clean.jpg', plays: 1},
   {id: 'uncut', title: 'Loop · Uncut audio', note: 'Repeats until you close it · original audio', file: 'preshow-uncut.mp4', thumb: 'thumb-uncut.jpg', plays: Infinity},
-  {id: 'uncut-3x', title: '3× · Uncut audio', note: '13:23, three cycles, then stops · original audio', file: 'preshow-uncut.mp4', thumb: 'thumb-uncut.jpg', plays: 3},
+  {id: 'uncut-3x', title: '3× · Uncut audio', note: '13:23, three cycles, then stops · original audio', file: 'preshow-3x-uncut.mp4', thumb: 'thumb-uncut.jpg', plays: 1},
 ];
 const grid = document.getElementById('grid'), stage = document.getElementById('stage'), player = document.getElementById('player'),
       closeBtn = document.getElementById('close');
